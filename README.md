@@ -1,6 +1,6 @@
 # Our Bank - Application de Gestion Bancaire
 
-Projet de gestion bancaire développé dans le cadre du cursus de Master 1. Cette application permet aux utilisateurs de gérer leurs comptes, d'effectuer des opérations courantes et de réaliser des virements sécurisés.
+Projet de gestion bancaire développé par Shiva ILANCHEJIAN et Djabrail KHAPIZOV dans le cadre du cursus de Master 1. Cette application permet aux utilisateurs de gérer leurs comptes, d'effectuer des opérations courantes et de réaliser des virements sécurisés.
 
 ## Fonctionnalités principales
 
