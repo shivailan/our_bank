@@ -20,4 +20,4 @@ const connectMySQL = async () => {
 
 // Exporte à la fois la fonction ET le pool
 module.exports = connectMySQL;
-module.exports.pool = pool; // Tu pourras faire require('./db').pool dans tes contrôleursx&xé
+module.exports.pool = pool; 

@@ -1,16 +1,13 @@
 const express = require('express');
-const session = require('express-session'); // 1. Bien importé en haut
+const session = require('express-session'); 
 const path = require('path');
 require('dotenv').config();
 
-// ✅ CES 3 LIGNES SONT OBLIGATOIRES
 const authRoutes = require('./routes/authRoutes');
 const clientRoutes = require('./routes/clientRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
-
-// ... dans app.js
 const connectMySQL = require('./config/db_mysql'); 
 const connectMongo = require('./config/db_mongo'); 
 
@@ -31,18 +28,16 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
 
-// ==========================================
-// ⚠️ CE BLOC DOIT ABSOLUMENT ÊTRE ICI (AVANT LES ROUTES)
-// ==========================================
+
 app.use(session({
     secret: process.env.SESSION_SECRET || 'un_secret_par_defaut',
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false } // Laisse false sur ton environnement local (HTTP)
+    cookie: { secure: false } 
 }));
 
 // Déclaration des routes
-app.use('/auth', authRoutes); // Les routes viennent APRÈS la session
+app.use('/auth', authRoutes); 
 app.use('/client', clientRoutes);
 app.use('/admin', adminRoutes);
 

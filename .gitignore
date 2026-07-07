@@ -4,7 +4,6 @@ npm-debug.log
 yarn-error.log
 
 # --- Environnement et Secrets ---
-# Ne jamais partager tes mots de passe et configs de base de données
 .env
 .env.local
 .env.development.local
@@ -28,5 +27,4 @@ Desktop.ini
 logs/
 *.log
 
-# --- Bases de données / Fichiers temporaires ---
-*.sql
+
