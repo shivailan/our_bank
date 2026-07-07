@@ -29,5 +29,5 @@ Avant de lancer le projet, assurez-vous d'avoir :
 
 1. **Cloner le dépôt**
    ```bash
-   git clone [URL_DE_TON_REPO]
-   cd our-bank# our_bank
+   git clone [URL_DU_DEPOT]
+   cd our_bank
