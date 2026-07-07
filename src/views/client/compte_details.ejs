@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Our Bank | Gestion de compte</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    .bank-card { border-radius: 1rem; border: none; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    .nav-bank { background: #0f172a; }
+
+    /* Forcer la couleur du texte dans les inputs du virement */
+    .input-virement {
+        background-color: #1e3a8a !important; /* Un bleu un peu plus clair pour contraster */
+        color: #ffffff !important;
+        border: none !important;
+    }
+    
+    /* Forcer la couleur du texte même quand on clique dedans */
+    .input-virement:focus {
+        background-color: #1e3a8a !important;
+        color: #ffffff !important;
+        box-shadow: none !important;
+    }
+
+    .input-virement::placeholder {
+        color: #cbd5e1 !important; /* Gris clair très lisible */
+        opacity: 1;
+    }
+</style>
+</head>
+<body class="bg-gray-50">
+
+    <nav class="nav-bank p-3 shadow-lg">
+        <div class="container">
+            <a class="text-white text-decoration-none font-semibold" href="/client/dashboard">
+                <i class="fa-solid fa-arrow-left me-2"></i> Retour au Dashboard
+            </a>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <% if (error) { %><div class="alert alert-danger border-0 shadow-sm mb-4"><%= error %></div><% } %>
+        <% if (success) { %><div class="alert alert-success border-0 shadow-sm mb-4"><%= success %></div><% } %>
+
+        <div class="row g-4">
+            <div class="col-md-5">
+                <div class="bank-card bg-white p-4 mb-4">
+                    <h5 class="text-gray-500 uppercase text-xs mb-2"><%= compte.type_compte %></h5>
+                    <code class="text-gray-400 mb-3 block"><%= compte.iban %></code>
+                    <h2 class="text-4xl font-bold text-gray-900 mb-3"><%= parseFloat(compte.solde).toFixed(2) %> €</h2>
+                    <span class="badge <%= compte.statut === 'actif' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700' %> rounded-full px-3 py-1">
+                        <%= compte.statut.toUpperCase() %>
+                    </span>
+                </div>
+
+                <div class="bank-card bg-white p-4 mb-4">
+                    <h6 class="font-bold mb-3"><i class="fa-solid fa-exchange-alt text-blue-600 me-2"></i>Opérations</h6>
+                    <form action="/client/compte/<%= compte.id %>/operation" method="POST">
+                        <select name="type_transaction" class="form-select mb-3 border-gray-200">
+                            <option value="dépôt">Dépôt</option>
+                            <option value="retrait">Retrait</option>
+                        </select>
+                        <input type="number" name="montant" class="form-control mb-3" placeholder="Montant (€)" step="0.01" min="1" required>
+                        <input type="text" name="libelle" class="form-control mb-3" placeholder="Libellé">
+                        <button class="btn btn-primary w-100 rounded-pill font-bold">Valider</button>
+                    </form>
+                </div>
+
+<div class="bank-card bg-blue-900 text-white p-4">
+    <h6 class="font-bold mb-3 text-emerald-400"><i class="fa-solid fa-paper-plane me-2"></i>Virement</h6>
+    <form action="/client/compte/<%= compte.id %>/virement" method="POST">
+        <input type="text" name="iban_destinataire" class="form-control bg-blue-800 text-white input-virement mb-3" placeholder="IBAN Destinataire" required>
+        <input type="number" name="montant" class="form-control bg-blue-800 text-white input-virement mb-3" placeholder="Montant" required>
+        <button class="btn btn-light w-100 rounded-pill font-bold">Confirmer</button>
+    </form>
+</div>
+            </div>
+
+            <div class="col-md-7">
+                <div class="bank-card bg-white p-4">
+                    <h6 class="font-bold mb-4"><i class="fa-solid fa-history text-blue-600 me-2"></i>Historique</h6>
+                    <% if (transactions.length === 0) { %>
+                        <p class="text-gray-400 text-center py-5">Aucun mouvement récent.</p>
+                    <% } else { %>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead>
+                                    <tr class="text-gray-400 text-xs uppercase">
+                                        <th>Date</th><th>Type</th><th>Libellé</th><th class="text-end">Montant</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% transactions.forEach(t => { 
+                                        // LOGIQUE DE VUE : Déterminer si c'est une réception ou une émission
+                                        const isDestinataire = (t.compte_destinataire_id == compte.id);
+                                        const isVirement = (t.type_transaction === 'virement émis');
+                                    %>
+                                        <tr>
+                                            <td class="text-sm text-gray-500"><%= new Date(t.date_transaction).toLocaleDateString() %></td>
+                                            <td>
+                                                <span class="badge <%= isDestinataire && isVirement ? 'bg-emerald-100 text-emerald-700' : (t.type_transaction === 'dépôt' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700') %>">
+                                                    <%= isDestinataire && isVirement ? 'Virement reçu' : t.type_transaction %>
+                                                </span>
+                                            </td>
+                                            <td class="text-gray-700"><%= t.libelle || '-' %></td>
+                                            <td class="text-end font-bold <%= isDestinataire && isVirement ? 'text-emerald-600' : (t.type_transaction === 'dépôt' ? 'text-emerald-600' : 'text-red-600') %>">
+                                                <%= isDestinataire && isVirement ? '+' : (t.type_transaction === 'dépôt' ? '+' : '-') %> 
+                                                <%= parseFloat(t.montant).toFixed(2) %> €
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

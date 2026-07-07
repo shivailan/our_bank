@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Our Bank | Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background: #f1f5f9; }
+        .bank-card { border-radius: 1rem; border: 2px solid #e2e8f0; background: #fff; }
+        .nav-bank { background: #0f172a; }
+        .input-dark { background: #1e293b !important; border: 1px solid #334155 !important; color: white !important; }
+        .quick-nav-icon { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: #f1f5f9; }
+    </style>
+</head>
+<body>
+
+    <nav class="nav-bank p-3 shadow-lg">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a class="text-white font-black text-xl" href="#"><i class="fa-solid fa-building-columns me-2 text-emerald-400"></i>OUR BANK</a>
+            <div class="d-flex align-items-center gap-3">
+                <span class="text-gray-300 text-xs">Bonjour, <strong><%= user.prenom %></strong></span>
+                <a href="/auth/logout" class="btn btn-outline-light btn-sm rounded-full px-3"><i class="fa-solid fa-power-off me-1"></i> Déconnexion</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <% if (error) { %><div class="alert alert-danger border-2 border-red-200 mb-4 font-bold"><%= error %></div><% } %>
+        <% if (success) { %><div class="alert alert-success border-2 border-emerald-200 mb-4 font-bold"><%= success %></div><% } %>
+
+        <div class="row g-4">
+            <!-- Colonne Principale -->
+            <div class="col-md-8">
+                <!-- Stats & Quick Actions -->
+                <div class="bank-card p-4 mb-4">
+                    <div class="d-flex justify-content-between mb-4">
+                        <div>
+                            <p class="text-[10px] font-black text-slate-500 uppercase">Solde global</p>
+                            <h3 class="text-3xl font-black text-slate-900"><%= comptes.reduce((sum, c) => sum + parseFloat(c.solde), 0).toFixed(2) %> €</h3>
+                        </div>
+                        <div class="text-end">
+                            <p class="text-[10px] font-black text-slate-500 uppercase">Statut</p>
+                            <span class="badge bg-emerald-500 rounded-full px-3">Vérifié</span>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3">
+                        <button class="btn btn-dark rounded-pill px-4 font-bold text-xs uppercase"><i class="fa-solid fa-arrow-right-arrow-left me-2"></i>Virements</button>
+                        <button class="btn btn-outline-secondary rounded-pill px-4 font-bold text-xs uppercase"><i class="fa-solid fa-file-pdf me-2"></i>Relevés</button>
+                        <button class="btn btn-outline-secondary rounded-pill px-4 font-bold text-xs uppercase"><i class="fa-solid fa-gear me-2"></i>Paramètres</button>
+                    </div>
+                </div>
+
+                <div class="bank-card p-4 mb-4">
+    <h5 class="font-black text-slate-700 uppercase tracking-widest text-sm mb-4"><i class="fa-solid fa-list-ul me-2"></i>Mouvements Récents</h5>
+    <div class="table-responsive">
+        <table class="table table-sm align-middle text-sm">
+            <tbody>
+                <% if (transactions.length === 0) { %>
+                    <tr><td colspan="3" class="text-center text-slate-400">Aucune transaction récente.</td></tr>
+                <% } else { transactions.forEach(t => { %>
+                    <tr>
+                        <td class="text-slate-500"><%= new Date(t.date_transaction).toLocaleDateString() %></td>
+                        <td class="font-bold text-slate-800"><%= t.libelle || t.type_transaction %></td>
+                        <td class="text-end font-black <%= t.type_transaction.includes('dépôt') || (t.compte_destinataire_id !== null && t.type_transaction === 'virement émis') ? 'text-emerald-600' : 'text-red-600' %>">
+                            <%= t.type_transaction.includes('dépôt') ? '+' : '-' %><%= parseFloat(t.montant).toFixed(2) %> €
+                        </td>
+                    </tr>
+                <% }) } %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+                <!-- Comptes -->
+                <div class="bank-card p-4 mb-4">
+                    <h5 class="font-black text-slate-700 uppercase tracking-widest text-sm mb-4">Mes comptes bancaires</h5>
+                    <table class="table align-middle">
+                        <thead class="text-slate-400 text-xs uppercase">
+                            <tr><th>Type</th><th>IBAN</th><th>Solde</th><th>Statut</th><th>Action</th></tr>
+                        </thead>
+                        <tbody>
+                            <% comptes.forEach(c => { %>
+                                <tr>
+                                    <td class="font-bold text-slate-900"><%= c.type_compte %></td>
+                                    <td><code class="text-slate-500 bg-slate-100 p-1 rounded text-xs"><%= c.iban %></code></td>
+                                    <td class="font-mono font-bold"><%= parseFloat(c.solde).toFixed(2) %> €</td>
+                                    <td><span class="badge <%= c.statut === 'actif' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700' %> rounded-full px-3"><%= c.statut %></span></td>
+                                    <td><a href="/client/compte/<%= c.id %>" class="text-blue-600 font-bold text-xs underline">Gérer</a></td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Section Bonus : Actualités Bancaires -->
+                <div class="bank-card p-4">
+                    <h5 class="font-black text-slate-700 uppercase tracking-widest text-sm mb-4">Actualités de votre banque</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="p-3 bg-slate-50 rounded-lg">
+                                <h6 class="font-bold text-sm">Nouveau taux d'épargne !</h6>
+                                <p class="text-[11px] text-slate-500">Profitez de notre livret A boosté à 3.5% ce mois-ci.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 bg-slate-50 rounded-lg">
+                                <h6 class="font-bold text-sm">Renforcez votre sécurité</h6>
+                                <p class="text-[11px] text-slate-500">Activez la validation biométrique sur votre application.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-md-4">
+
+                <!-- Widget Dernière Connexion -->
+<div class="bank-card p-4 mb-4">
+    <div class="d-flex align-items-center mb-3">
+        <i class="fa-solid fa-clock-rotate-left text-blue-600 text-xl me-3"></i>
+        <div>
+            <p class="font-black text-xs text-slate-800">Dernière activité</p>
+            <p class="text-[10px] text-slate-500 mb-0">Aujourd'hui à <%= new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'}) %></p>
+        </div>
+    </div>
+    <div class="text-[10px] text-slate-400 border-t pt-2">
+        <i class="fa-solid fa-location-dot me-1"></i> Moissy-Cramayel, FR
+    </div>
+</div>
+                <!-- Création -->
+                <div class="bank-card bg-slate-900 text-white p-4 mb-4 sticky top-4">
+                    <h5 class="font-black text-emerald-400 uppercase tracking-widest text-sm mb-4"><i class="fa-solid fa-plus-circle me-2"></i>Nouveau Compte</h5>
+                    <form action="/client/compte/create" method="POST">
+                        <div class="mb-3">
+                            <label class="block text-[10px] uppercase font-bold opacity-70 mb-1">Type de produit</label>
+                            <select name="type_compte" class="form-select input-dark border-0">
+                                <option value="courant">Compte Courant</option>
+                                <option value="livret A">Livret A</option>
+                                <option value="PEL">PEL</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-[10px] uppercase font-bold opacity-70 mb-1">Dépôt initial (€)</label>
+                            <input type="number" name="solde_initial" class="form-control input-dark border-0" value="0.00" step="0.01" required>
+                        </div>
+                        <button type="submit" class="btn btn-emerald-500 w-100 font-black py-3 rounded-xl uppercase tracking-widest text-sm bg-emerald-500 text-white transition">Ouvrir</button>
+                    </form>
+                </div>
+
+                <!-- NOUVEAU : Section Pub / Cross-selling -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="bank-card p-3 border-l-4 border-blue-600">
+                            <i class="fa-solid fa-percent text-blue-600 mb-2"></i>
+                            <h6 class="font-black text-xs uppercase">Crédit Immo</h6>
+                            <p class="text-[10px] text-slate-500 mb-2">Taux exceptionnel à partir de 2.9%.</p>
+                            <a href="#" class="text-[10px] font-bold text-blue-600">Simuler →</a>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="bank-card p-3 border-l-4 border-purple-600">
+                            <i class="fa-solid fa-credit-card text-purple-600 mb-2"></i>
+                            <h6 class="font-black text-xs uppercase">Carte Gold</h6>
+                            <p class="text-[10px] text-slate-500 mb-2">Assurances voyages incluses.</p>
+                            <a href="#" class="text-[10px] font-bold text-purple-600">Souscrire →</a>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="bank-card p-3 border-l-4 border-orange-500">
+                            <i class="fa-solid fa-umbrella text-orange-500 mb-2"></i>
+                            <h6 class="font-black text-xs uppercase">Assurance Vie</h6>
+                            <p class="text-[10px] text-slate-500 mb-2">Préparez votre avenir sereinement.</p>
+                            <a href="#" class="text-[10px] font-bold text-orange-500">Découvrir →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Widget Sécurité -->
+                <div class="bank-card p-4 border-l-4 border-emerald-500">
+                    <div class="d-flex align-items-center">
+                        <i class="fa-solid fa-shield-halved text-2xl text-emerald-500 me-3"></i>
+                        <div>
+                            <p class="font-black text-xs text-slate-800">Sécurité maximale</p>
+                            <p class="text-[10px] text-slate-500">Connexion chiffrée SSL 256-bit</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Footer Professionnel -->
+    <footer class="mt-5 py-5" style="background-color: #0a2540; color: #ffffff;">
+        <div class="container text-center">
+            <div class="d-flex justify-content-center gap-4 mb-3 text-white text-xs font-bold uppercase tracking-widest opacity-80">
+                <a href="#" class="hover:text-emerald-400 transition text-decoration-none">Aide</a>
+                <a href="#" class="hover:text-emerald-400 transition text-decoration-none">Sécurité</a>
+                <a href="#" class="hover:text-emerald-400 transition text-decoration-none">Mentions légales</a>
+                <a href="#" class="hover:text-emerald-400 transition text-decoration-none">Contact</a>
+            </div>
+            <p class="text-[10px] font-medium opacity-60 mt-4">
+                &copy; 2026 Our Bank - Tous droits réservés. Système certifié conforme aux normes bancaires.
+            </p>
+            <div class="mt-2 text-emerald-400 opacity-90">
+                <i class="fa-solid fa-lock me-1"></i> <span class="text-[10px]">Connexion sécurisée par cryptage 256-bit</span>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,32 @@
+# --- Node.js ---
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# --- Environnement et Secrets ---
+# Ne jamais partager tes mots de passe et configs de base de données
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# --- OS / Système ---
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+Desktop.ini
+
+# --- IDE / Éditeurs ---
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# --- Logs ---
+logs/
+*.log
+
+# --- Bases de données / Fichiers temporaires ---
+*.sql
