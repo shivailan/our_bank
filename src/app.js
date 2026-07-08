@@ -8,7 +8,7 @@ const clientRoutes = require('./routes/clientRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
-const connectMySQL = require('./config/db_mysql'); 
+const { connectMySQL } = require('./config/db_mysql');
 const connectMongo = require('./config/db_mongo'); 
 
 // 1. Connexion MySQL (Obligatoire)

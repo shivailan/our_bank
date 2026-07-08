@@ -4,7 +4,7 @@ require('dotenv').config();
 const pool = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
-    password: process.env.DB_PASS,
+    password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME
 });
 
@@ -19,5 +19,8 @@ const connectMySQL = async () => {
 };
 
 // Exporte à la fois la fonction ET le pool
-module.exports = connectMySQL;
-module.exports.pool = pool; 
+// Remplace la fin de ton fichier par ceci :
+module.exports = {
+    pool,
+    connectMySQL
+};

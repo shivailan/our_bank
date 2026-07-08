@@ -62,10 +62,16 @@
                 <% } else { transactions.forEach(t => { %>
                     <tr>
                         <td class="text-slate-500"><%= new Date(t.date_transaction).toLocaleDateString() %></td>
-                        <td class="font-bold text-slate-800"><%= t.libelle || t.type_transaction %></td>
-                        <td class="text-end font-black <%= t.type_transaction.includes('dépôt') || (t.compte_destinataire_id !== null && t.type_transaction === 'virement émis') ? 'text-emerald-600' : 'text-red-600' %>">
-                            <%= t.type_transaction.includes('dépôt') ? '+' : '-' %><%= parseFloat(t.montant).toFixed(2) %> €
-                        </td>
+<!-- Libellé dynamique -->
+<td class="font-bold text-slate-800">
+    <%= t.libelle || (comptes.some(c => c.id === t.compte_destinataire_id) ? 'Virement reçu' : t.type_transaction) %>
+</td>
+<td class="text-end font-black 
+    <%= (comptes.some(c => c.id === t.compte_destinataire_id)) ? 'text-emerald-600' : 'text-red-600' %>">
+    
+    <%= (comptes.some(c => c.id === t.compte_destinataire_id)) ? '+' : '-' %>
+    <%= parseFloat(t.montant).toFixed(2) %> €
+</td>
                     </tr>
                 <% }) } %>
             </tbody>
